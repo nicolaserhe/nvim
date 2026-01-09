@@ -1,10 +1,11 @@
 -- =========================
 -- Add Plugin
 -- =========================
-vim.pack.add{
+vim.pack.add {
     { src = 'https://github.com/windwp/nvim-autopairs' },
     { src = 'https://github.com/numToStr/Comment.nvim' },
     { src = 'https://github.com/tversteeg/registers.nvim' },
+    { src = 'https://github.com/kylechui/nvim-surround' },
 }
 
 
@@ -13,6 +14,7 @@ vim.pack.add{
 -- =========================
 require('nvim-autopairs').setup({})
 require('registers').setup({})
+require("nvim-surround").setup({})
 
 
 -- =========================
