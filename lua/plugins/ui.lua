@@ -78,10 +78,10 @@ local alpha = require("alpha")
 local dashboard = require("alpha.themes.dashboard")
 -- Buttons
 dashboard.section.buttons.val = {
-    dashboard.button("o", "󰏖  Open Last Session", ":SessionManager load_last_session<CR>"),
-    dashboard.button("s", "  Choose Session", ":SessionManager load_session<CR>"),
-    dashboard.button("f", "  Frecency files", "::Telescope frecency<CR>"),
-    dashboard.button("q", "󰅚  Quit NVIM", ":qa<CR>"),
+    dashboard.button("𝓞", "󰏖  Open Last Session", ":SessionManager load_last_session<CR>"),
+    dashboard.button("𝓢", "  Choose Session", ":SessionManager load_session<CR>"),
+    dashboard.button("𝓕", "  Frecency files", "::Telescope frecency<CR>"),
+    dashboard.button("𝓠", "󰅚  Quit NVIM", ":qa<CR>"),
 }
 dashboard.config.opts.noautocmd = true
 alpha.setup(dashboard.config)
