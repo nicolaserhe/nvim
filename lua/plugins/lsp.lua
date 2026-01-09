@@ -1,10 +1,11 @@
 -- =========================
 -- Add Plugin
 -- =========================
-vim.pack.add{
-    { src = 'https://github.com/neovim/nvim-lspconfig' },  -- LSP 配置
-    { src = 'https://github.com/hrsh7th/nvim-cmp' },       -- 补全框架
-    { src = 'https://github.com/hrsh7th/cmp-nvim-lsp' },   -- LSP 补全源
+vim.pack.add {
+    { src = 'https://github.com/neovim/nvim-lspconfig' }, -- LSP 配置
+    { src = 'https://github.com/hrsh7th/nvim-cmp' },      -- 补全框架
+    { src = 'https://github.com/hrsh7th/cmp-nvim-lsp' },  -- LSP 补全源
+    { src = 'https://github.com/mason-org/mason.nvim' },  -- Mason
 }
 
 
@@ -13,9 +14,11 @@ vim.pack.add{
 -- =========================
 -- --- nvim-lspconfig ---
 -- 启用 LSP
-vim.lsp.enable('gopls')     -- 启用 Go 语言 LSP
-vim.lsp.enable('clangd')    -- 启用 C 语言 LSP
-vim.lsp.enable('bashls')    -- 启用 Shell 脚本 LSP
+vim.lsp.enable('gopls')  -- 启用 Go 语言 LSP
+vim.lsp.enable('clangd') -- 启用 C 语言 LSP
+vim.lsp.enable('lua_ls') -- 启用 lua LSP
+vim.lsp.enable('bashls') -- 启用 Shell 脚本 LSP
+vim.lsp.enable("sqls")   -- 启用 MySQL LSP
 
 -- 全局诊断配置
 vim.diagnostic.config({
@@ -31,26 +34,26 @@ vim.api.nvim_create_autocmd('LspAttach', {
         local opts = { buffer = buf, noremap = true, silent = true }
 
         -- -------- 跳转相关 --------
-        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)       -- 跳转到定义
-        vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)      -- 跳转到声明
-        vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)   -- 跳转到实现
-        vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, opts)  -- 跳转到类型定义
-        vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)       -- 查找引用
+        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)      -- 跳转到定义
+        vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)     -- 跳转到声明
+        vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)  -- 跳转到实现
+        vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, opts) -- 跳转到类型定义
+        vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)      -- 查找引用
 
         -- -------- 提示相关 --------
-        vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)             -- 光标悬停提示
+        vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)              -- 光标悬停提示
         vim.keymap.set('i', '<C-S>', vim.lsp.buf.signature_help, opts) -- 函数签名提示
 
         -- -------- LSP 代码操作命令 --------
         vim.api.nvim_buf_create_user_command(buf, 'LspRename', function()
-            vim.lsp.buf.rename()  -- 重命名光标下符号
+            vim.lsp.buf.rename() -- 重命名光标下符号
         end, { desc = 'LSP: Rename symbol under cursor' })
 
         -- -------- 保存时自动格式化 --------
         vim.api.nvim_create_autocmd("BufWritePre", {
-            buffer = buf,  -- 仅作用于当前缓冲区
+            buffer = buf,                                 -- 仅作用于当前缓冲区
             callback = function()
-                vim.lsp.buf.format({ timeout_ms = 2000 })  -- 调用 LSP 格式化，超时 2 秒
+                vim.lsp.buf.format({ timeout_ms = 2000 }) -- 调用 LSP 格式化，超时 2 秒
             end,
         })
 
@@ -60,8 +63,8 @@ vim.api.nvim_create_autocmd('LspAttach', {
             callback = function()
                 -- 调用 LSP 的 organizeImports code action
                 vim.lsp.buf.code_action({
-                    context = { only = { "source.organizeImports" } },  -- 仅处理包管理
-                    apply = true  -- 自动应用修改
+                    context = { only = { "source.organizeImports" } }, -- 仅处理包管理
+                    apply = true                                       -- 自动应用修改
                 })
             end,
         })
@@ -71,31 +74,31 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
 --- nvim-cmp ---
 -- 自动补全配置
-local cmp = require'cmp'
+local cmp = require 'cmp'
 
 cmp.setup {
-    preselect = cmp.PreselectMode.Item,  -- 自动高亮第一个候选项
+    preselect = cmp.PreselectMode.Item,                    -- 自动高亮第一个候选项
     mapping = cmp.mapping.preset.insert({
-        ['<CR>'] = cmp.mapping.confirm({ select = true }),  -- 回车确认选中
+        ['<CR>'] = cmp.mapping.confirm({ select = true }), -- 回车确认选中
         -- Tab / Shift-Tab 切换候选项
         ['<Tab>'] = cmp.mapping(function(fallback)
             if cmp.visible() then
                 cmp.select_next_item()
             else
-                fallback()  -- 菜单没打开就执行 Tab 原功能（缩进）
+                fallback() -- 菜单没打开就执行 Tab 原功能（缩进）
             end
         end, { 'i', 's' }),
         ['<S-Tab>'] = cmp.mapping(function(fallback)
             if cmp.visible() then
                 cmp.select_prev_item()
             else
-                fallback()  -- 菜单没打开就执行 Shift-Tab 原功能
+                fallback() -- 菜单没打开就执行 Shift-Tab 原功能
             end
         end, { 'i', 's' }),
     }),
 
     sources = {
-        { name = 'nvim_lsp' },  -- LSP 补全
+        { name = 'nvim_lsp' }, -- LSP 补全
     },
 
     completion = {
@@ -108,6 +111,10 @@ cmp.setup {
         documentation = cmp.config.window.bordered({ border = "rounded" }),
     },
 }
+
+
+-- --- mason.nvim ---
+require("mason").setup {}
 
 
 -- =========================

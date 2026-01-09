@@ -11,9 +11,8 @@ vim.pack.add{
         version = vim.version.range('3')
     },
 
-    -- telescope --
-    { src = 'https://github.com/nvim-telescope/telescope.nvim' },
-    { src = 'https://github.com/nvim-telescope/telescope-ui-select.nvim' },
+    -- nvim-bqf --
+    { src = 'https://github.com/kevinhwang91/nvim-bqf' },
 
     -- Alpha --
     { src = 'https://github.com/goolord/alpha-nvim' },
@@ -73,14 +72,6 @@ require("neo-tree").setup {
     },
 }
 
--- --- telescope ---
-require("telescope").setup {
-    extensions = {
-        ["ui-select"] = require("telescope.themes").get_dropdown {},
-    },
-}
-require("telescope").load_extension("ui-select")
-
 
 -- --- alpha ---
 local alpha = require("alpha")
@@ -89,7 +80,7 @@ local dashboard = require("alpha.themes.dashboard")
 dashboard.section.buttons.val = {
     dashboard.button("o", "󰏖  Open Last Session", ":SessionManager load_last_session<CR>"),
     dashboard.button("s", "  Choose Session", ":SessionManager load_session<CR>"),
-    dashboard.button("r", "  Recent files", ":lua require('telescope.builtin').oldfiles()<CR>"),
+    dashboard.button("f", "  Frecency files", "::Telescope frecency<CR>"),
     dashboard.button("q", "󰅚  Quit NVIM", ":qa<CR>"),
 }
 dashboard.config.opts.noautocmd = true
@@ -178,10 +169,6 @@ require("lualine").setup {
         'quickfix',    -- 在 Quickfix 窗口显示状态栏
     },
 }
--- require('plugins.ui.bubbles')
--- require('plugins.ui.cosmicink')
--- require('plugins.ui.evil_lualine')
--- require('plugins.ui.slanted-gaps')
 
 
 -- --- gitsigns.nvim ---
