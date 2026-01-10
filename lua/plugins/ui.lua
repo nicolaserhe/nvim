@@ -1,7 +1,7 @@
 -- =========================
 -- Add Plugin
 -- =========================
-vim.pack.add{
+vim.pack.add {
     -- theme --
     { src = 'https://github.com/catppuccin/nvim' },
 
@@ -43,7 +43,7 @@ vim.pack.add{
 require("catppuccin").setup {
     flavour = "macchiato", -- latte / frappe / macchiato / mocha
     integrations = {
-        diffview = true,  -- 必须为 true
+        diffview = true,   -- 必须为 true
     },
 }
 vim.cmd.colorscheme "catppuccin"
@@ -78,10 +78,10 @@ local alpha = require("alpha")
 local dashboard = require("alpha.themes.dashboard")
 -- Buttons
 dashboard.section.buttons.val = {
-    dashboard.button("𝓞", "󰏖  Open Last Session", ":SessionManager load_last_session<CR>"),
-    dashboard.button("𝓢", "  Choose Session", ":SessionManager load_session<CR>"),
-    dashboard.button("𝓕", "  Frecency files", "::Telescope frecency<CR>"),
-    dashboard.button("𝓠", "󰅚  Quit NVIM", ":qa<CR>"),
+    dashboard.button("o", "󰏖  Open Last Session", ":SessionManager load_last_session<CR>"),
+    dashboard.button("s", "  Choose Session", ":SessionManager load_session<CR>"),
+    dashboard.button("f", "  Frecency files", "::Telescope frecency<CR>"),
+    dashboard.button("q", "󰅚  Quit NVIM", ":qa<CR>"),
 }
 dashboard.config.opts.noautocmd = true
 alpha.setup(dashboard.config)
@@ -113,9 +113,9 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
 
 -- --- lualine.nvim --
 local lsp_server = function()
-    local clients = vim.lsp.get_clients({ bufnr = 0 })  -- 获取当前 buffer 的 LSP
+    local clients = vim.lsp.get_clients({ bufnr = 0 }) -- 获取当前 buffer 的 LSP
     if #clients == 0 then
-        return ""  -- 没有 LSP 就显示空
+        return ""                                      -- 没有 LSP 就显示空
     end
 
     local names = {}
@@ -123,12 +123,13 @@ local lsp_server = function()
         table.insert(names, client.name)
     end
 
-    return " " .. table.concat(names, ", ") .. "                  "
+    return " " .. table.concat(names, ", ") .. string.rep(" ", 16)
 end
 
 local linecol = function()
-    local row, col = unpack(vim.api.nvim_win_get_cursor(0))  -- 当前行列
-    local total = vim.api.nvim_buf_line_count(0)             -- 总行数
+    local unpack = table.unpack or unpack
+    local row, col = unpack(vim.api.nvim_win_get_cursor(0)) -- 当前行列
+    local total = vim.api.nvim_buf_line_count(0)            -- 总行数
     return string.format(":%d/%d :%d ", row, total, col + 1)
 end
 require("lualine").setup {
@@ -141,12 +142,8 @@ require("lualine").setup {
         lualine_a = { 'mode' },
         lualine_b = { 'branch', 'diff', 'diagnostics' },
         lualine_c = { 'filename' },
-
         -- 右侧状态栏
-        lualine_x = {
-            { lsp_server, separator = '' },
-            { 'filetype' },
-        },
+        lualine_x = { { lsp_server, separator = '' }, 'filetype' },
         lualine_y = {
             { 'encoding', separator = '' },
             { 'fileformat', symbols = { unix = ' ', dos = ' ' } },
@@ -155,50 +152,50 @@ require("lualine").setup {
         },
         lualine_z = {
             { 'progress', separator = '' },
-            { linecol, separator = '', padding = 0 },
+            { linecol,    separator = '', padding = 0 },
         },
     },
 
     tabline = {
-        lualine_a = { 'buffers' },  -- 左侧显示 buffer 列表
-        lualine_z = { 'tabs' },     -- 右侧显示 tab 列表
+        lualine_a = { 'buffers' }, -- 左侧显示 buffer 列表
+        lualine_z = { 'tabs' },    -- 右侧显示 tab 列表
     },
 
     extensions = {
-        'nvim-tree',   -- 在 Nvim-Tree 窗口显示简洁状态栏
-        'quickfix',    -- 在 Quickfix 窗口显示状态栏
+        'nvim-tree', -- 在 Nvim-Tree 窗口显示简洁状态栏
+        'quickfix',  -- 在 Quickfix 窗口显示状态栏
     },
 }
 
 
 -- --- gitsigns.nvim ---
-require('gitsigns').setup{
-  on_attach = function(bufnr)
-    local gitsigns = require('gitsigns')
+require('gitsigns').setup {
+    on_attach = function(bufnr)
+        local gitsigns = require('gitsigns')
 
-    local function map(mode, l, r, opts)
-      opts = opts or {}
-      opts.buffer = bufnr
-      vim.keymap.set(mode, l, r, opts)
+        local function map(mode, l, r, opts)
+            opts = opts or {}
+            opts.buffer = bufnr
+            vim.keymap.set(mode, l, r, opts)
+        end
+
+        -- Navigation
+        map('n', ']c', function()
+            if vim.wo.diff then
+                vim.cmd.normal({ ']c', bang = true })
+            else
+                gitsigns.nav_hunk('next')
+            end
+        end)
+
+        map('n', '[c', function()
+            if vim.wo.diff then
+                vim.cmd.normal({ '[c', bang = true })
+            else
+                gitsigns.nav_hunk('prev')
+            end
+        end)
     end
-
-    -- Navigation
-    map('n', ']c', function()
-      if vim.wo.diff then
-        vim.cmd.normal({']c', bang = true})
-      else
-        gitsigns.nav_hunk('next')
-      end
-    end)
-
-    map('n', '[c', function()
-      if vim.wo.diff then
-        vim.cmd.normal({'[c', bang = true})
-      else
-        gitsigns.nav_hunk('prev')
-      end
-    end)
-  end
 }
 
 
@@ -252,4 +249,3 @@ require('gitsigns').setup{
 --   :Gitsigns toggle_current_line_blame    - 显示/隐藏当前行 blame
 --   :Gitsigns toggle_word_diff             - 开启/关闭 word diff（逐字 diff）
 --
-
