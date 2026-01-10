@@ -3,7 +3,8 @@
 -- =========================
 vim.pack.add {
     -- theme --
-    { src = 'https://github.com/catppuccin/nvim' },
+    -- { src = 'https://github.com/catppuccin/nvim' },
+    { src = 'https://github.com/Mofiqul/dracula.nvim' },
 
     -- neo-tree --
     {
@@ -40,13 +41,16 @@ vim.pack.add {
 -- Setup / Config
 -- =========================
 -- --- catppuccin ---
-require("catppuccin").setup {
-    flavour = "macchiato", -- latte / frappe / macchiato / mocha
-    integrations = {
-        diffview = true,   -- 必须为 true
-    },
-}
-vim.cmd.colorscheme "catppuccin"
+-- require("catppuccin").setup {
+--     flavour = "macchiato", -- latte / frappe / macchiato / mocha
+--     integrations = {
+--         diffview = true,   -- 必须为 true
+--     },
+-- }
+-- vim.cmd.colorscheme "catppuccin"
+
+-- --- dracula ---
+vim.cmd.colorscheme "dracula"
 
 
 -- --- neo-tree ---
