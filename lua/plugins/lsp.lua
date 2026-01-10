@@ -46,33 +46,34 @@ vim.api.nvim_create_autocmd('LspAttach', {
         vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)              -- 光标悬停提示
         vim.keymap.set('i', '<C-S>', vim.lsp.buf.signature_help, opts) -- 函数签名提示
 
-        -- -------- LSP 代码操作命令 --------
-        vim.api.nvim_buf_create_user_command(buf, 'LspRename', function()
-            vim.lsp.buf.rename() -- 重命名光标下符号
-        end, { desc = 'LSP: Rename symbol under cursor' })
+        -- 每个 buffer 一个 augroup，重复 attach 会自动清掉旧的
+        local group = vim.api.nvim_create_augroup(
+            'LspAutoCmds_' .. buf,
+            { clear = true }
+        )
 
-        -- -------- 保存时自动格式化 --------
-        vim.api.nvim_create_autocmd("BufWritePre", {
-            buffer = buf,                                 -- 仅作用于当前缓冲区
+        -- 保存时格式化
+        vim.api.nvim_create_autocmd('BufWritePre', {
+            group = group,
+            buffer = buf,
             callback = function()
-                vim.lsp.buf.format({ timeout_ms = 2000 }) -- 调用 LSP 格式化，超时 2 秒
+                vim.lsp.buf.format({ timeout_ms = 2000 })
             end,
         })
 
-        -- -------- 保存时自动管理包（自动导入/删除未使用包） --------
-        vim.api.nvim_create_autocmd("BufWritePre", {
+        -- 保存时 organize imports
+        vim.api.nvim_create_autocmd('BufWritePre', {
+            group = group,
             buffer = buf,
             callback = function()
-                -- 调用 LSP 的 organizeImports code action
                 vim.lsp.buf.code_action({
-                    context = { only = { "source.organizeImports" } }, -- 仅处理包管理
-                    apply = true                                       -- 自动应用修改
+                    context = { only = { 'source.organizeImports' } },
+                    apply = true,
                 })
             end,
         })
-    end
+    end,
 })
-
 
 --- nvim-cmp ---
 -- 自动补全配置
