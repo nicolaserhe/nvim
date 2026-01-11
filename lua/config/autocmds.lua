@@ -7,7 +7,7 @@
 -- 保存上次编辑位置
 -- ------------------------
 vim.api.nvim_create_autocmd("BufReadPost", {
-    pattern = "*",  -- 对所有文件生效
+    pattern = "*", -- 对所有文件生效
     callback = function()
         -- 获取上次光标位置
         local mark = vim.api.nvim_buf_get_mark(0, '"')
@@ -19,4 +19,3 @@ vim.api.nvim_create_autocmd("BufReadPost", {
         end
     end,
 })
-

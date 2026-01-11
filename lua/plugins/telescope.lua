@@ -42,4 +42,3 @@ require('telescope').load_extension('frecency')
 -- :Telescope live_grep       -- 在项目或指定目录中实时搜索文本内容（类似 grep），支持跳转到匹配行
 -- :Telescope buffers         -- 列出当前已打开的缓冲区（文件），方便快速切换文件
 -- :Telescope frecency        -- 按访问频率和最近使用时间列出文件
-
