@@ -56,6 +56,10 @@
       "rev": "72acb69020c92d99cf388bfeb390481ccec50c04",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
+    "im-select.nvim": {
+      "rev": "113a6905a1c95d2990269f96abcbad9718209557",
+      "src": "https://github.com/keaising/im-select.nvim"
+    },
     "lualine.nvim": {
       "rev": "47f91c416daef12db467145e16bed5bbfe00add8",
       "src": "https://github.com/nvim-lualine/lualine.nvim"

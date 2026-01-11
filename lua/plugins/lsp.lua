@@ -23,11 +23,27 @@ vim.lsp.enable("yamlls")  -- 启用 YAML LSP
 vim.lsp.enable("jsonls")  -- 启用 JSON LSP
 
 -- 全局诊断配置
-vim.diagnostic.config({
-    virtual_text = true,      -- 代码旁显示错误信息
-    underline = true,         -- 下划线标记错误
+vim.diagnostic.config {
+    virtual_text     = true,  -- 代码旁显示错误信息
+    underline        = true,  -- 下划线标记错误
     update_in_insert = false, -- 插入模式下不更新诊断
-})
+}
+
+-- 全部诊断 → quickfix
+vim.api.nvim_create_user_command("DiagnosticsProject", function()
+    vim.diagnostic.setqflist({ open = true }) -- 纯 Lua 写法，自动打开 quickfix
+end, { desc = "All diagnostics in quickfix" })
+
+-- 当前 buffer（location list 窗口）
+vim.api.nvim_create_user_command("DiagnosticsBuffer", function()
+    vim.diagnostic.setloclist({ open = true }) -- 纯 Lua 写法，自动打开 loclist
+end, { desc = "Current buffer diagnostics" })
+
+-- 当前光标（浮窗显示）
+vim.api.nvim_create_user_command("Diagnostics", function()
+    vim.diagnostic.open_float() -- Lua 原生 API
+end, { desc = "Cursor diagnostics" })
+
 
 -- LSP Attach 时的按键绑定 & 命令
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -47,11 +63,19 @@ vim.api.nvim_create_autocmd('LspAttach', {
         vim.keymap.set('i', '<C-S>', vim.lsp.buf.signature_help, opts) -- 函数签名提示
 
         -- 每个 buffer 一个 augroup，重复 attach 会自动清掉旧的
-        local group = vim.api.nvim_create_augroup(
-            'LspAutoCmds_' .. buf,
-            { clear = true }
-        )
+        vim.api.nvim_create_augroup('LspAutoCmds_' .. buf, { clear = true })
     end,
+})
+
+-- 告诉 LSP 'vim' 是全局变量
+vim.lsp.config("lua_ls", {
+    settings = {
+        Lua = {
+            diagnostics = {
+                globals = { "vim" },
+            },
+        },
+    },
 })
 
 
