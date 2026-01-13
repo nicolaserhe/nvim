@@ -14,6 +14,9 @@ o.termguicolors = true                                       -- 启用真彩色�
 o.scrolloff = 8                                              -- 光标上下至少保持8行可视
 o.wrap = true                                                -- 自动换行
 o.guicursor = "n-v-c:block,i-ci-ve:block,r-cr:block,o:block" -- 光标样式：块状
+o.splitbelow = true                                          -- 水平分割窗口时，新窗口在下方
+o.splitright = true                                          -- 垂直分割窗口时，新窗口在右侧
+
 
 -- ------------------------
 -- 缩进和制表符

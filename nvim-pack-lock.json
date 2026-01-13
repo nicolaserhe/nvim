@@ -204,6 +204,10 @@
     "vim-dadbod-ui": {
       "rev": "48c4f271da13d380592f4907e2d1d5558044e4e5",
       "src": "https://github.com/kristijanhusak/vim-dadbod-ui"
+    },
+    "vim-illuminate": {
+      "rev": "0d1e93684da00ab7c057410fecfc24f434698898",
+      "src": "https://github.com/RRethy/vim-illuminate"
     }
   }
 }

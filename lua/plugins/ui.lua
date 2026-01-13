@@ -150,7 +150,7 @@ require("lualine").setup {
         -- 左侧状态栏
         lualine_a = { 'mode' },
         lualine_b = { 'branch', 'diff', 'diagnostics' },
-        lualine_c = { 'filename' },
+        lualine_c = { { 'filename', path = 1 } },
         -- 右侧状态栏
         lualine_x = { { lsp_server, separator = '' }, 'filetype' },
         lualine_y = {

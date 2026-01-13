@@ -67,6 +67,10 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end,
 })
 
+vim.api.nvim_create_user_command('LspRename', function()
+    vim.lsp.buf.rename()
+end, { nargs = 0 })
+
 -- 告诉 LSP 'vim' 是全局变量
 vim.lsp.config("lua_ls", {
     settings = {
