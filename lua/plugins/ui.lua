@@ -63,6 +63,7 @@ require("neo-tree").setup {
     default_component_configs = {
         git_status = {
             symbols = {
+                added     = "",
                 deleted   = "",
                 modified  = "",
                 renamed   = "",

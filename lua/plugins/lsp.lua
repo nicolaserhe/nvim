@@ -13,14 +13,15 @@ vim.pack.add {
 -- =========================
 -- --- nvim-lspconfig ---
 -- 启用 LSP
-vim.lsp.enable('gopls')   -- 启用 Go 语言 LSP
-vim.lsp.enable('clangd')  -- 启用 C/CPP LSP
-vim.lsp.enable('lua_ls')  -- 启用 lua LSP
-vim.lsp.enable("sqls")    -- 启用 MySQL LSP
-vim.lsp.enable("pyright") -- 启用 Python LSP
-vim.lsp.enable('bashls')  -- 启用 Shell 脚本 LSP
-vim.lsp.enable("yamlls")  -- 启用 YAML LSP
-vim.lsp.enable("jsonls")  -- 启用 JSON LSP
+vim.lsp.enable('gopls')       -- 启用 Go 语言 LSP
+vim.lsp.enable('clangd')      -- 启用 C/CPP LSP
+vim.lsp.enable('lua_ls')      -- 启用 lua LSP
+vim.lsp.enable("sqls")        -- 启用 MySQL LSP
+vim.lsp.enable("makefile_ls") -- 启用 Makefile LSP
+vim.lsp.enable("pyright")     -- 启用 Python LSP
+vim.lsp.enable('bashls')      -- 启用 Shell 脚本 LSP
+vim.lsp.enable("yamlls")      -- 启用 YAML LSP
+vim.lsp.enable("jsonls")      -- 启用 JSON LSP
 
 -- 全局诊断配置
 vim.diagnostic.config {
