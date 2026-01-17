@@ -1,5 +1,5 @@
 -- =========================
--- Add Plugin
+-- Plugin 管理
 -- =========================
 vim.pack.add {
     { src = 'https://github.com/neovim/nvim-lspconfig' }, -- LSP 配置
@@ -7,146 +7,153 @@ vim.pack.add {
     { src = 'https://github.com/hrsh7th/cmp-nvim-lsp' },  -- LSP 补全源
 }
 
+-- =========================
+-- LSP 配置
+-- =========================
+local lsp = vim.lsp
 
--- =========================
--- Setup / Config
--- =========================
--- --- nvim-lspconfig ---
 -- 启用 LSP
-vim.lsp.enable('gopls')       -- 启用 Go 语言 LSP
-vim.lsp.enable('clangd')      -- 启用 C/CPP LSP
-vim.lsp.enable('lua_ls')      -- 启用 lua LSP
-vim.lsp.enable("sqls")        -- 启用 MySQL LSP
-vim.lsp.enable("makefile_ls") -- 启用 Makefile LSP
-vim.lsp.enable("pyright")     -- 启用 Python LSP
-vim.lsp.enable('bashls')      -- 启用 Shell 脚本 LSP
-vim.lsp.enable("yamlls")      -- 启用 YAML LSP
-vim.lsp.enable("jsonls")      -- 启用 JSON LSP
+local servers = {
+    'gopls',   -- Go
+    'clangd',  -- C/CPP
+    'lua_ls',  -- Lua
+    'sqls',    -- SQL
+    'pyright', -- Python
+    'bashls',  -- Shell
+    'yamlls',  -- YAML
+    'jsonls',  -- JSON
+}
 
+for _, srv in ipairs(servers) do
+    lsp.enable(srv)
+end
+
+-- Lua 特殊配置
+lsp.config('lua_ls', {
+    settings = {
+        Lua = {
+            diagnostics = {
+                globals = { 'vim' }, -- 告诉 LSP 'vim' 是全局变量
+            },
+        },
+    },
+})
+
+-- =========================
+-- LSP Attach buffer-local 快捷键 & 命令
+-- =========================
+vim.api.nvim_create_autocmd('LspAttach', {
+    callback = function(args)
+        local buf = args.buf
+        local opts = { buffer = buf, noremap = true, silent = true }
+
+        -- ---------- 跳转 ----------
+        vim.keymap.set('n', 'gd', lsp.buf.definition, opts)
+        vim.keymap.set('n', 'gD', lsp.buf.declaration, opts)
+        vim.keymap.set('n', 'gt', lsp.buf.type_definition, opts)
+
+        -- ---------- 提示 ----------
+        vim.keymap.set('n', 'K', lsp.buf.hover, opts)
+        vim.keymap.set('i', '<C-S>', lsp.buf.signature_help, opts)
+
+        -- ---------- buffer-local 命令 ----------
+        local function buf_cmd(name, fn, cmd_opts)
+            vim.api.nvim_buf_create_user_command(buf, name, fn, cmd_opts or {})
+        end
+
+        buf_cmd('LspReferences', lsp.buf.references)
+        buf_cmd('LspIncomingCalls', lsp.buf.incoming_calls)
+        buf_cmd('LspOutgoingCalls', lsp.buf.outgoing_calls)
+        buf_cmd('LspDocumentSymbols', lsp.buf.document_symbol)
+        buf_cmd('LspImplementation', lsp.buf.implementation)
+        buf_cmd('LspRename', function() lsp.buf.rename() end, { nargs = 0 })
+    end,
+})
+
+-- =========================
 -- 全局诊断配置
+-- =========================
 vim.diagnostic.config {
     virtual_text     = true,  -- 代码旁显示错误信息
     underline        = true,  -- 下划线标记错误
     update_in_insert = false, -- 插入模式下不更新诊断
 }
 
--- 全部诊断 → quickfix
-vim.api.nvim_create_user_command("DiagnosticsProject", function()
-    vim.diagnostic.setqflist({ open = true }) -- 纯 Lua 写法，自动打开 quickfix
-end, { desc = "All diagnostics in quickfix" })
-
--- 当前 buffer（location list 窗口）
-vim.api.nvim_create_user_command("DiagnosticsBuffer", function()
-    vim.diagnostic.setloclist({ open = true }) -- 纯 Lua 写法，自动打开 loclist
-end, { desc = "Current buffer diagnostics" })
-
--- 当前光标（浮窗显示）
-vim.api.nvim_create_user_command("Diagnostics", function()
-    vim.diagnostic.open_float() -- Lua 原生 API
-end, { desc = "Cursor diagnostics" })
-
-
--- LSP Attach 时的按键绑定 & 命令
-vim.api.nvim_create_autocmd('LspAttach', {
-    callback = function(args)
-        local buf = args.buf
-        local opts = { buffer = buf, noremap = true, silent = true }
-
-        -- -------- 跳转相关 --------
-        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)      -- 跳转到定义
-        vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)     -- 跳转到声明
-        vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)  -- 跳转到实现
-        vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, opts) -- 跳转到类型定义
-        vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)      -- 查找引用
-
-        -- -------- 提示相关 --------
-        vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)              -- 光标悬停提示
-        vim.keymap.set('i', '<C-S>', vim.lsp.buf.signature_help, opts) -- 函数签名提示
-
-        -- 每个 buffer 一个 augroup，重复 attach 会自动清掉旧的
-        vim.api.nvim_create_augroup('LspAutoCmds_' .. buf, { clear = true })
-    end,
+-- 全局诊断命令
+vim.api.nvim_create_user_command("Diagnostics", function(opts)
+    local scope = opts.args
+    if scope == "project" then
+        vim.diagnostic.setqflist({ open = true })
+    elseif scope == "buffer" then
+        vim.diagnostic.setloclist({ open = true })
+    else
+        -- 默认或 unknown 都执行光标诊断
+        vim.diagnostic.open_float()
+    end
+end, {
+    desc = "Show diagnostics: project/buffer (default: cursor)",
+    nargs = "?", -- 可选参数
 })
 
-vim.api.nvim_create_user_command('LspRename', function()
-    vim.lsp.buf.rename()
-end, { nargs = 0 })
-
--- 告诉 LSP 'vim' 是全局变量
-vim.lsp.config("lua_ls", {
-    settings = {
-        Lua = {
-            diagnostics = {
-                globals = { "vim" },
-            },
-        },
-    },
-})
-
-
---- nvim-cmp ---
--- 自动补全配置
+-- =========================
+-- nvim-cmp 自动补全
+-- =========================
 local cmp = require 'cmp'
 
 cmp.setup {
-    preselect = cmp.PreselectMode.Item,                    -- 自动高亮第一个候选项
+    -- ---------- 基本配置 ----------
+    preselect = cmp.PreselectMode.Item, -- 自动高亮第一个候选项
+
+    -- ---------- 快捷键映射 ----------
     mapping = cmp.mapping.preset.insert({
-        ['<CR>'] = cmp.mapping.confirm({ select = true }), -- 回车确认选中
-        -- Tab / Shift-Tab 切换候选项
-        ['<Tab>'] = cmp.mapping(function(fallback)
-            if cmp.visible() then
-                cmp.select_next_item()
-            else
-                fallback() -- 菜单没打开就执行 Tab 原功能（缩进）
-            end
-        end, { 'i', 's' }),
-        ['<S-Tab>'] = cmp.mapping(function(fallback)
-            if cmp.visible() then
-                cmp.select_prev_item()
-            else
-                fallback() -- 菜单没打开就执行 Shift-Tab 原功能
-            end
-        end, { 'i', 's' }),
+        ['<CR>'] = cmp.mapping.confirm({ select = true }), -- 回车确认选中项
     }),
 
+    -- ---------- 补全来源 ----------
     sources = {
-        { name = 'nvim_lsp' }, -- LSP 补全
+        { name = 'nvim_lsp' }, -- 使用 LSP 提供补全
     },
 
+    -- ---------- 自动触发补全 ----------
     completion = {
-        autocomplete = { cmp.TriggerEvent.TextChanged }, -- 输入字符自动补全
+        autocomplete = { cmp.TriggerEvent.TextChanged }, -- 输入字符时自动补全
     },
 
-    -- 补全菜单加边框
+    -- ---------- 补全窗口样式 ----------
     window = {
-        completion = cmp.config.window.bordered({ border = "rounded" }),
-        documentation = cmp.config.window.bordered({ border = "rounded" }),
+        completion    = cmp.config.window.bordered({ border = "rounded" }), -- 补全菜单加圆角边框
+        documentation = cmp.config.window.bordered({ border = "rounded" }), -- 文档浮窗加圆角边框
     },
 }
 
-
 -- =========================
--- Help
+-- 快捷键 & 使用说明（仅注释）
 -- =========================
--- 跳转相关:
--- gd  : 跳转到定义
--- gD  : 跳转到声明
--- gi  : 跳转到实现
--- gt  : 跳转到类型定义
--- gr  : 查找引用
+--- ---------- 跳转 ----------
+-- gd  : 跳转到定义 (vim.lsp.buf.definition)
+-- gD  : 跳转到声明 (vim.lsp.buf.declaration)
+-- gt  : 跳转到类型定义 (vim.lsp.buf.type_definition)
 
--- 提示相关:
--- K   : 光标悬停提示
--- <C-S> : 函数签名提示
+-- ---------- 提示 ----------
+-- K     : 光标悬停提示 (vim.lsp.buf.hover)
+-- <C-S> : 函数签名提示 (vim.lsp.buf.signature_help)
 
--- 代码操作:
--- gra : 代码操作（Code Action）
--- LspRename : 重命名符号
+-- ---------- 代码操作 ----------
+-- gra       : 代码操作 (Code Action)
+-- :LspRename : 重命名符号 (vim.lsp.buf.rename)
+-- :LspReferences      : 当前符号引用 (vim.lsp.buf.references)
+-- :LspIncomingCalls   : 函数被调用的地方 (vim.lsp.buf.incoming_calls)
+-- :LspOutgoingCalls   : 函数调用了哪些函数 (vim.lsp.buf.outgoing_calls)
+-- :LspDocumentSymbols : 当前 buffer 中的符号列表 (vim.lsp.buf.document_symbol)
+-- :LspImplementation  : 当前接口实现 (vim.lsp.buf.implementation)
 
--- 增量选择:
--- an : 外层增量选择（outer incremental selection）
--- in : 内层增量选择（inner incremental selection）
+-- ---------- 增量选择 ----------
+-- an : 外层增量选择 (outer incremental selection)
+-- in : 内层增量选择 (inner incremental selection)
 
--- 诊断相关:
+-- ---------- 诊断 ----------
 -- ]d ,[d : 下一个/上一个诊断
 -- ]D ,[D : 开始/结束诊断
+-- :Diagnostics          : 光标诊断 (默认)
+-- :Diagnostics buffer   : 当前 buffer 诊断 → location list
+-- :Diagnostics project  : 全项目诊断 → quickfix
